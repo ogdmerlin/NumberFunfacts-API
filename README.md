@@ -67,12 +67,49 @@ Multiple Deployment Options: Render, Vercel, DigitalOcean Droplet, Docker, etc.
 ### Architecture
 FastAPI powers the HTTP interface.<br>
 Uvicorn is used as the ASGI server.<br>
-Requests library fetches data from the Numbers API.
+Requests library fetches data from the Numbers API.<br>
+The Numbers API provides fun facts about numbers.<br>
 
+Directory layout:
+```bash
+numberfunfacts-api/
+├─ main.py          # Contains the FastAPI application
+├─ requirements.txt # Dependencies
+├─ ...
+```
 ---
 ## Tech Stack
 
+- [python3.x](https://www.python.org/)
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [Uvicorn](https://www.uvicorn.org/)
 - [Requests](https://docs.python-requests.org/en/master/)
 - [Numbers API](http://numbersapi.com)
+
+## Getting Started
+Prerequisites<br>
+Python 3.8+ recommended
+
+### Installation
+
+1. Clone the repo:
+```bash
+git clone https://github.com/ogdmerlin/NumberFunfacts-API.git
+cd NumberFunfacts-API
+pip install -r requirements.txt
+```
+#### Running Locally
+Option A: Direct Uvicorn Launch
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+Visit http://127.0.0.1:8000/docs for the interactive Swagger UI.
+![alt text](image.png)
+>Note: I used a droplet ipaddress from didgital ocean to test the api.
+---
+Option B: Docker Container
+```bash
+docker build -t numberfunfacts-api .
+docker run -d -p 8000:8000 numberfunfacts-api
+```
+Visit http://
