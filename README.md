@@ -46,3 +46,33 @@ Sample success response:
   "fun_fact": "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371"
 }
 ```
+
+Invalid (non-numeric) response:
+
+```json
+{
+  "number": "alphabet",
+  "error": true
+}
+```
+---
+## Features
+
+Number Classification: prime, perfect, armstrong, even/odd<br> 
+Number Fun Fact: uses Numbers API for non-Armstrong numbers<br>
+CORS Support: configurable via CORSMiddleware
+Multiple Deployment Options: Render, Vercel, DigitalOcean Droplet, Docker, etc.
+
+---
+### Architecture
+FastAPI powers the HTTP interface.<br>
+Uvicorn is used as the ASGI server.<br>
+Requests library fetches data from the Numbers API.
+
+---
+## Tech Stack
+
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [Uvicorn](https://www.uvicorn.org/)
+- [Requests](https://docs.python-requests.org/en/master/)
+- [Numbers API](http://numbersapi.com)
