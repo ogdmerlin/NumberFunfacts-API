@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -149,8 +150,7 @@ def classify_number(number: str):
         digits_str = str(abs(num))
         power = len(digits_str)
         expression_parts = " + ".join(f"{d}^{power}" for d in digits_str)
-        fun_fact = f"{num} is an Armstrong number because {
-            expression_parts} = {abs(num)}"
+        fun_fact = f"{num} is an Armstrong number because {expression_parts} = {num}"
     else:
         fun_fact = get_numbers_api_fact(num)
 
