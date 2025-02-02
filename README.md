@@ -87,8 +87,8 @@ numberfunfacts-api/
 - [Numbers API](http://numbersapi.com)
 
 ## Getting Started
-Prerequisites<br>
-Python 3.8+ recommended
+### Prerequisites<br>
+- Python 3.8+ recommended
 
 ### Installation
 
@@ -103,13 +103,11 @@ Option A: Direct Uvicorn Launch
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
+Option B: Using Python Modules
+```bash
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+``` 
 Visit http://127.0.0.1:8000/docs for the interactive Swagger UI.
 ![alt text](image.png)
 >Note: I used a droplet ipaddress from didgital ocean to test the api.
 ---
-Option B: Docker Container
-```bash
-docker build -t numberfunfacts-api .
-docker run -d -p 8000:8000 numberfunfacts-api
-```
-Visit http://
