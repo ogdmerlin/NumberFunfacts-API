@@ -106,7 +106,7 @@ Option B: Using Python Modules
 python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ``` 
 Visit http://127.0.0.1:8000/docs for the interactive Swagger UI.
-![alt text](image.png)
+![alt text](pub/image.png)
 >Note: I used a droplet IPaddress from didgital ocean to test the api.
 ---
 ### API Endpoints
@@ -151,13 +151,13 @@ Docs link https://numberfunfacts-api.onrender.com/docs
 ### [Docker](https://www.docker.com/)
 - Create a Dockerfile
 
-![alt text](image-6.png)
+![alt text](pub/image-6.png)
 
 - Build the image: 
 ```bash
 docker build -t math-app:latest .
 ```
-![alt text](image-5.png)
+![alt text](pub/image-5.png)
 
 - Run the container: 
 ```bash
@@ -170,7 +170,7 @@ We can now go ahead and tag our image and push it to docker hub.
 docker tag math-app:latest ogdmerlin/math-app:latest
 docker push ogdmerlin/math-app:latest
 ```
-![alt text](image-9.png)
+![alt text](pub/image-9.png)
 
 ### Ubuntu Server
 
@@ -212,18 +212,18 @@ sudo systemctl enable fastapi
 sudo systemctl status fastapi
 ```
 
-![alt text](image-1.png)
+![alt text](pub/image-1.png)
 > Error Explanation (status=203/EXEC)
 A 203/EXEC error in systemd generally means that systemd could not execute the command specified in the ExecStart line—often because the path is incorrect or the file is not executable by the systemd service user.
 
-![alt text](image-2.png)
+![alt text](pub/image-2.png)
 > So here is the fix, i had to reference my api dependencies in the service file, and when i run it everything work as expected.
-![alt text](image-3.png)
+![alt text](pub/image-3.png)
 
 > Now the service is running in the background and i can access it via
 
 `http:localhost:8000/api/classify-number?number=371`
- ![alt text](image-4.png)
+ ![alt text](pub/image-4.png)
 
 ---
 ## Contributing
@@ -234,4 +234,3 @@ A 203/EXEC error in systemd generally means that systemd could not execute the c
 - Open a pull request<br>
 
 Contributions, issues, and feature requests are welcome!
-
