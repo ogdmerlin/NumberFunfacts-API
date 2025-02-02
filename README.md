@@ -163,7 +163,9 @@ docker build -t math-app:latest .
 ```bash
 docker run -d -p 8000:8000 math-app:latest
 ```
-- Access the API at http://localhost:8000/api/classify-number?number=371
+
+- Access the API at http://68.183.15.100:8000/api/classify-number?number=371
+![alt text](pub/image11.png)
 
 We can now go ahead and tag our image and push it to docker hub.
 ```bash
