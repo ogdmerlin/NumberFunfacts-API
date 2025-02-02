@@ -13,9 +13,7 @@
   - [Running Locally](#running-locally)
 - [API Endpoints](#api-endpoints)
 - [Deployment](#deployment)
-- [License](#license)
 - [Contributing](#contributing)
-
 ---
 
 ## Overview
@@ -109,5 +107,131 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ``` 
 Visit http://127.0.0.1:8000/docs for the interactive Swagger UI.
 ![alt text](image.png)
->Note: I used a droplet ipaddress from didgital ocean to test the api.
+>Note: I used a droplet IPaddress from didgital ocean to test the api.
 ---
+### API Endpoints
+| Endpoint              | Method | Description                                           | Example                                        |
+|-----------------------|--------|-------------------------------------------------------|------------------------------------------------|
+| `/api/classify-number` | GET    | Classifies a given `number` and returns its properties. | `GET /api/classify-number?number=371`         |
+Query Parameters:
+- number (required) – integer string (e.g. 371)
+
+
+200 OK Response:
+```json
+{
+  "number": 371,
+  "is_prime": false,
+  "is_perfect": false,
+  "properties": ["armstrong", "odd"],
+  "class_sum": 11,
+  "fun_fact": "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371"
+}
+``` 
+400 Bad Request Response:
+```json
+{
+  "number": "alphabet",
+  "error": true
+}
+```
+---
+
+## Deployment
+Below are some quick notes on deployment options.
+### [Render](https://render.com/)
+- Push code to GitHub.
+- Create a new Web Service on render.com.<br>
+- Use build command: pip install -r requirements.txt.<br>
+- Use start command: uvicorn main:app --host 0.0.0.0 --port $PORT.<br>
+- Deploy and access via your Render subdomain.<br>
+
+Render live link https://numberfunfacts-api.onrender.com/api/classify-number?number=10 <br>
+Docs link https://numberfunfacts-api.onrender.com/docs
+### [Docker](https://www.docker.com/)
+- Create a Dockerfile
+
+![alt text](image-6.png)
+
+- Build the image: 
+```bash
+docker build -t math-app:latest .
+```
+![alt text](image-5.png)
+
+- Run the container: 
+```bash
+docker run -d -p 8000:8000 math-app:latest
+```
+- Access the API at http://localhost:8000/api/classify-number?number=371
+
+We can now go ahead and tag our image and push it to docker hub.
+```bash
+docker tag math-app:latest ogdmerlin/math-app:latest
+docker push ogdmerlin/math-app:latest
+```
+![alt text](image-9.png)
+
+### Ubuntu Server
+
+- Create an Ubuntu Server using your prefered cloud provider.
+- SSH in, install Python 3, pip, etc.
+- Clone your repo, install dependencies, and run uvicorn.
+
+### (Optional) Create a systemd service file to keep it running in the background.
+
+- Create a new service file:
+```bash
+sudo vi /etc/systemd/system/numberfunfacts.service
+```
+- Add the following content:
+```bash
+[Unit]
+Description=Number Funfacts API
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/numberfunfacts-api
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host
+
+[Install]
+WantedBy=multi-user.target
+
+```
+- Start the service:
+```bash
+sudo systemctl start fastapi
+```
+- Enable the service to start on boot:
+```bash
+sudo systemctl enable fastapi
+```
+- Check the status:
+```bash
+sudo systemctl status fastapi
+```
+
+![alt text](image-1.png)
+> Error Explanation (status=203/EXEC)
+A 203/EXEC error in systemd generally means that systemd could not execute the command specified in the ExecStart line—often because the path is incorrect or the file is not executable by the systemd service user.
+
+![alt text](image-2.png)
+> So here is the fix, i had to reference my api dependencies in the service file, and when i run it everything work as expected.
+![alt text](image-3.png)
+
+> Now the service is running in the background and i can access it via
+
+`http:localhost:8000/api/classify-number?number=371`
+ ![alt text](image-4.png)
+
+---
+## Contributing
+- Fork the project<br>
+- Create your feature branch: git checkout -b feature/awesome-feature<br>
+- Commit changes: git commit -m "Add awesome feature"
+- Push to your branch: git push origin feature/awesome-feature
+- Open a pull request<br>
+
+Contributions, issues, and feature requests are welcome!
+
