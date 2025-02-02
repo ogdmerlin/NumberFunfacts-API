@@ -230,9 +230,9 @@ A 203/EXEC error in systemd generally means that systemd could not execute the c
 ---
 ## Contributing
 - Fork the project<br>
-- Create your feature branch: git checkout -b feature/awesome-feature<br>
-- Commit changes: git commit -m "Add awesome feature"
-- Push to your branch: git push origin feature/awesome-feature
-- Open a pull request<br>
+- Create your feature branch: `git checkout -b feature/awesome-feature`<br>
+- Commit changes: "`git commit -m "Add awesome feature`"
+- Push to your branch: `git push origin feature/awesome-feature`<br>
+- Open a **pull request**.<br>
 
 Contributions, issues, and feature requests are welcome!
