@@ -1,5 +1,13 @@
 # test place holder
 
-def test_basic():
-    """A placeholder test so Pytest doesn't fail with zero tests."""
+import pytest
+
+
+@pytest.mark.xfail
+def test_fails():
+    assert False
+
+
+@pytest.mark.xfail
+def test_succeeds():
     assert True
