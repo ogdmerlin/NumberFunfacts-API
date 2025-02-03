@@ -7,10 +7,14 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-test-scan-deploy:
+  # ------------------------------------------------
+  # 1) Build, Test, Scan, and Push to DockerHub
+  # ------------------------------------------------
+  build-test-scan-push:
     runs-on: ubuntu-latest
+
     steps:
-      # 1) Checkout
+      # 1) Check out repository
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -20,18 +24,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      # 3) Install & test
+      # 3) Install Python dependencies
       - name: Install Python Deps
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-        #   pip install pytest
-      
-    #   - name: Run Tests
-    #     run: |
-    #       pytest --maxfail=1 --disable-warnings -q
 
-      # 4) Snyk Python Scan
+      # (Optional) Run Snyk scan for Python dependencies
       - name: Snyk Python Scan
         uses: snyk/actions/python@master
         with:
@@ -39,7 +38,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      # 5) SonarCloud Scan
+      # (Optional) Run SonarCloud analysis
       - name: SonarCloud Analysis
         uses: sonarsource/sonarcloud-github-action@master
         env:
@@ -49,30 +48,77 @@ jobs:
             -Dsonar.organization=ogdmerlin
             -Dsonar.projectKey=ogdmerlin_NumberFunfacts-API
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-            # -Dsonar.python.coverage.reportPaths=coverage.xml (if coverage is generated)
 
-      # 6) Build Docker Image
+      # 4) Build Docker image with both :latest and :SHA tags
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:latest .
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:${{ github.sha }} .
 
-      # 7) Docker login (fixed)
-      - name: Login to DockerHub
+      # 5) Docker login
+      - name: Docker Login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 8) (Optional) Snyk Docker Scan
+      # 6) (Optional) Snyk Docker Scan
       - name: Snyk Docker Scan
         uses: snyk/actions/docker@master
         with:
-          image: ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:latest
+          image: ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:${{ github.sha }}
           command: test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      # 9) Push Docker Image
+      # 7) Push Docker image with both tags
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:${{ github.sha }}
+
+  # ------------------------------------------------
+  # 2) Deploy to DigitalOcean Droplet (depends on job #1)
+  # ------------------------------------------------
+  deploy-to-droplet:
+    runs-on: ubuntu-latest
+
+    # The "needs" keyword ensures this deploy job only runs if the first job succeeds
+    needs: build-test-scan-push
+
+    steps:
+      - name: Deploy to Droplet via SSH
+        uses: appleboy/ssh-action@v0.1.17
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          # We prefer SSH key-based authentication
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+
+          # This script runs on your droplet over SSH:
+          script: |
+            # 1) Install Docker if missing (Ubuntu-based example)
+            if ! command -v docker &> /dev/null
+            then
+              sudo apt-get update
+              sudo apt-get install -y docker.io
+              sudo systemctl enable docker
+              sudo systemctl start docker
+            fi
+
+            # 2) Log into Docker Hub using environment variables (provided below)
+            docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
+
+            # 3) Pull the newly tagged image (SHA) from Docker Hub
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:${{ github.sha }}
+
+            # 4) Stop and remove any existing container
+            docker rm -f numberfunfacts-container || true
+
+            # 5) Run the container on port 80 -> container's 8000
+            docker run -d --name numberfunfacts-container -p 80:8000 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:${{ github.sha }}
+        env:
+          # These are for the "docker login" command
+          DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKERHUB_TOKEN }}
