@@ -1,1 +1,75 @@
----
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test-scan-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1) Checkout
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2) Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # 3) Install & test
+      - name: Install Python Deps
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run Tests
+        run: |
+          pytest --maxfail=1 --disable-warnings -q
+
+      # 4) Snyk Python Scan
+      - name: Snyk Python Scan
+        uses: snyk/actions/python@master
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # 5) SonarCloud Scan
+      - name: SonarCloud Analysis
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=ogdmerlin
+            -Dsonar.projectKey=ogdmerlin_NumberFunfactsAPI
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            # -Dsonar.python.coverage.reportPaths=coverage.xml (if coverage is generated)
+
+      # 6) Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:latest .
+
+      # 7) Docker login
+      - name: Docker Login
+        run: |
+          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      # 8) (Optional) Snyk Docker Scan
+      - name: Snyk Docker Scan
+        uses: snyk/actions/docker@master
+        with:
+          image: ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:latest
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # 9) Push Docker Image
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:latest
