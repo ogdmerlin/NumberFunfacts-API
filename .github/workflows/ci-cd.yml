@@ -107,16 +107,17 @@ jobs:
             fi
 
             # 2) Log into Docker Hub using environment variables (provided below)
-            docker login -u "$DOCKER_USER" -p "$DOCKER_TOKEN"
+            # docker login -u "$DOCKER_USER" -p "$DOCKER_TOKEN"
+            sudo echo "$DOCKER_PASS" | sudo docker login -u "$DOCKER_USER" --password-stdin
 
             # 3) Pull the newly tagged image (SHA) from Docker Hub
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:${{ github.sha }}
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:${{ github.sha }}
 
             # 4) Stop and remove any existing container
-            docker rm -f numberfunfacts-container || true
+            sudo docker rm -f numberfunfacts-container || true
 
             # 5) Run the container on port 80 -> container's 8000
-            docker run -d --name numberfunfacts-container -p 80:8000 \
+            sudo docker run -d --name numberfunfacts-container -p 80:8000 \
               ${{ secrets.DOCKERHUB_USERNAME }}/numberfunfacts-api:${{ github.sha }}
         env:
           # These are for the "docker login" command
