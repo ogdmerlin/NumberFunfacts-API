@@ -47,7 +47,7 @@ jobs:
         with:
           args: >
             -Dsonar.organization=ogdmerlin
-            -Dsonar.projectKey=ogdmerlin_NumberFunfactsAPI
+            -Dsonar.projectKey=ogdmerlin_NumberFunfacts-API
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             # -Dsonar.python.coverage.reportPaths=coverage.xml (if coverage is generated)
 
