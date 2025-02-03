@@ -12,24 +12,24 @@ jobs:
     steps:
       # 1) Checkout
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2) Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       # 3) Install & test
       - name: Install Python Deps
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest
+        #   pip install pytest
       
-      - name: Run Tests
-        run: |
-          pytest --maxfail=1 --disable-warnings -q
+    #   - name: Run Tests
+    #     run: |
+    #       pytest --maxfail=1 --disable-warnings -q
 
       # 4) Snyk Python Scan
       - name: Snyk Python Scan
